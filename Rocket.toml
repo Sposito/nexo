@@ -1,0 +1,2 @@
+[default.databases.nexo_db]
+url = "db.sqlite" 
