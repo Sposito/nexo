@@ -12,7 +12,7 @@ use std::hash::{Hash, Hasher};
 /// 
 /// # Returns
 /// A hexadecimal string representation of the hash
-pub fn hash_password(salt: &str, password: &str) -> String {
+pub fn hash_password(salt: &str, password: String) -> String {
     // Combine salt and password
     let salted_password = format!("{}{}", salt, password);
     
@@ -25,22 +25,6 @@ pub fn hash_password(salt: &str, password: &str) -> String {
     format!("{:x}", hash)
 }
 
-/// Verify if a password matches a stored hash
-/// 
-/// # Arguments
-/// * `password` - The password to verify
-/// * `stored_hash` - The stored hash to compare against
-/// 
-/// # Returns
-/// True if the password matches the stored hash, false otherwise
-pub fn verify_password(password: &str, stored_hash: &str) -> bool {
-    // For now, we'll assume the stored hash includes the salt
-    // This is a simple implementation - in production you'd want more sophisticated parsing
-    let salt = "mysalt"; // This should be extracted from the stored hash in a real implementation
-    let computed_hash = hash_password(salt, password);
-    computed_hash == stored_hash
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -49,19 +33,19 @@ mod tests {
     fn test_hash_password() {
         let salt = "salt";
         let password = "6564";
-        let hash1 = hash_password(salt, password);
+        let hash1 = hash_password(salt, password.to_string());
         
-        let hash2 = hash_password(salt, password);
+        let hash2 = hash_password(salt, password.to_string());
         
         // Same inputs should produce same hash
         assert_eq!(hash1, hash2);
         
         // Different salt should produce different hash
-        let hash3 = hash_password("differentsalt", password);
+        let hash3 = hash_password("differentsalt", password.to_string());
         assert_ne!(hash1, hash3);
         
         // Different password should produce different hash
-        let hash4 = hash_password(salt, "differentpassword");
+        let hash4 = hash_password(salt, "differentpassword".to_string());
         assert_ne!(hash1, hash4);
     }
 }

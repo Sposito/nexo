@@ -17,7 +17,7 @@ fn rocket() -> _ {
         .mount("/", routes![index])
         .mount("/login", routes![login::login])
         .register("/", catchers![not_found])
-        .attach(database::Nexodb::init())
+        .attach(database::NexoDB::init())
 }
 
 #[catch(404)]
