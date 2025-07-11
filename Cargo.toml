@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 rocket = "0.5.1"
+sha2 = "0.10.9"
 sqlx-sqlite = "0.7.2"
 
 [dependencies.rocket_db_pools]
