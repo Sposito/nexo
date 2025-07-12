@@ -4,3 +4,6 @@
 /.*
 /*.sqlite
 /db.sqlite
+/data/*blend
+/data/*.db
+/data/*.sqlite

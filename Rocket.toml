@@ -4,3 +4,17 @@ url = "db.sqlite"
 [default]
 address = "0.0.0.0"
 port = 8000
+
+[debug.databases.nexo_db]
+url = "db.sqlite"
+
+[debug]
+address = "127.0.0.1"
+port = 8000
+
+[test.databases.nexo_db]
+url = "data/db_test.sqlite"
+
+[test]
+address = "127.0.0.1"
+port = 8001

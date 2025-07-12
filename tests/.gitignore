@@ -1,0 +1,23 @@
+# Test artifacts
+results/
+output.xml
+log.html
+report.html
+server.log
+
+# Robot Framework artifacts
+*.log
+*.xml
+*.html
+
+# Temporary files
+*.tmp
+*.temp
+
+# Database test files
+test_*.db
+test_*.sqlite
+
+# Browser artifacts
+screenshots/
+downloads/ 

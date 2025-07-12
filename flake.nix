@@ -29,6 +29,28 @@
               "rust-analyzer"
             ];
           };
+
+        # Python environment for Robot Framework
+        pythonEnv = pkgs.python3.withPackages (ps: with ps; [
+          robotframework
+          robotframework-seleniumlibrary
+          robotframework-requests
+          robotframework-databaselibrary
+          requests
+        ]);
+
+        # Testing tools
+        testTools = with pkgs; [
+          chromium
+          firefox
+          geckodriver
+          chromedriver
+          curl
+          httpie
+          procps
+          jq
+          yq
+        ];
       in
       {
         devShell = pkgs.mkShell {
@@ -40,12 +62,21 @@
             pkgs.code-cursor
             pkgs.sqlite
             pkgs.lldb
+            pythonEnv
+            testTools
           ];
 
           RUST_SRC_PATH = "${rustToolchain}/lib/rustlib/src/rust/library";
+          PYTHONPATH = "${pythonEnv}/${pythonEnv.sitePackages}";
 
           shellHook = ''
             echo "🚀 Ready to develop with Rocket and rust-analyzer!"
+            echo "🧪 Robot Framework and testing tools available!"
+            echo "Available commands:"
+            echo "  cargo test          - Run Rust unit tests"
+            echo "  robot tests/robot/  - Run Robot Framework tests"
+            echo "  cargo run           - Start the server"
+            echo "  cargo build --release - Build for production"
           '';
         };
       }

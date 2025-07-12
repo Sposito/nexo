@@ -3,6 +3,14 @@ use rocket_db_pools::Database;
 mod login;
 mod crypto;
 mod database;
+mod api_utils;
+
+#[get("/health")]
+async fn health() -> rocket::serde::json::Json<serde_json::Value> {
+    rocket::serde::json::Json(serde_json::json!({
+        "status": "ok"
+    }))
+}
 
 #[get("/")]
 async fn index(cookies: &rocket::http::CookieJar<'_>, db: &database::NexoDB) -> rocket::fs::NamedFile {
@@ -21,11 +29,11 @@ async fn index(cookies: &rocket::http::CookieJar<'_>, db: &database::NexoDB) -> 
 #[launch]
 fn rocket() -> _ {
     rocket::build()
-        .mount("/", routes![index])
+        .mount("/", routes![index, health])
         .mount("/home", routes![login::home])
         .mount("/login", routes![login::login])
         .mount("/", routes![login::logout])
-        .mount("/api", routes![login::get_current_user])
+        .mount("/api", routes![login::get_current_user, api_utils::init_db_endpoint])
         .register("/", catchers![not_found])
         .attach(database::NexoDB::init())
 }
