@@ -6,8 +6,18 @@ edition = "2024"
 [dependencies]
 rocket = "0.5.1"
 sha2 = "0.10.9"
-sqlx-sqlite = "0.7.2"
 
 [dependencies.rocket_db_pools]
 version = "0.2.0"
 features = ["sqlx_sqlite"]
+
+[profile.release]
+opt-level = 3       # Enables aggressive optimizations
+debug = false
+debug-assertions = false
+overflow-checks = false
+lto = true         # Link Time Optimizations
+panic = 'abort'    # 'abort'|'unwind'
+incremental = false
+codegen-units = 4  # Parallel codegen units (lower = better optimization, higher = faster compile)
+

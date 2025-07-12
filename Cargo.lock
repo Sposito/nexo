@@ -968,7 +968,6 @@ dependencies = [
  "rocket",
  "rocket_db_pools",
  "sha2",
- "sqlx-sqlite",
 ]
 
 [[package]]
