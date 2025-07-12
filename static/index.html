@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Login</title>
     <script src="https://unpkg.com/htmx.org@2.0.6"></script>
+    
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-800 flex items-center justify-center min-h-screen">
@@ -12,8 +13,8 @@
 <div class="bg-gray-300 p-8 rounded shadow-md w-96">
     <h2 class="text-2xl font-bold mb-6 text-center">Login</h2>
     <form
-            hx-post="/login"
-            hx-target="#response"
+            hx-post="/login/"
+            hx-target="body"
             hx-swap="innerHTML"
             class="space-y-4"
     >

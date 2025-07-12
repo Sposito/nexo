@@ -1,10 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Nexo</title>
+    <script src="https://unpkg.com/htmx.org@2.0.6"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body>
+<body class="bg-gray-900 text-white min-h-screen flex flex-col items-center justify-center p-4">
+
+<h1 class="text-gray-400 text-6xl font-bold mb-8">Nexo</h1>
+
+<div class="grid grid-cols-2 grid-rows-2 gap-4 w-64 h-64">
+    <!-- Config Tile -->
+    <button class="bg-gray-800 rounded-2xl shadow-md hover:bg-blue-600 transition w-32 h-32 flex items-center justify-center text-6xl">
+        ⚙️
+    </button>
+
+    <!-- Finance Tile -->
+    <button class="bg-gray-800 rounded-2xl shadow-md hover:bg-green-600 transition w-32 h-32 flex items-center justify-center text-6xl">
+        💰
+    </button>
+
+    <!-- Health Tile -->
+    <button class="bg-gray-800 rounded-2xl shadow-md hover:bg-red-600 transition w-32 h-32 flex items-center justify-center text-6xl">
+        ❤️
+    </button>
+
+    <!-- Documents Tile -->
+    <button class="bg-gray-800 rounded-2xl shadow-md hover:bg-yellow-600 transition w-32 h-32 flex items-center justify-center text-6xl">
+        📄
+    </button>
+</div>
 
 </body>
 </html>
