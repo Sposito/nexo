@@ -91,17 +91,21 @@
               fi
             fi
 
+            # Set up Rust environment
+            export PATH="${rustToolchain}/bin:$PATH"
+            export RUST_SRC_PATH="${rustToolchain}/lib/rustlib/src/rust/library"
+
             # Build the application
             echo "📦 Building application..."
-            cargo build --release
+            ${rustToolchain}/bin/cargo build --release
 
             # Run Rust tests
             echo "🔧 Running Rust tests..."
-            cargo test
+            ${rustToolchain}/bin/cargo test
 
             # Start server in background using test environment
             echo "🚀 Starting server using test environment..."
-            ROCKET_PROFILE=test ROCKET_CONFIG=./Rocket.toml ROCKET_PORT=8001 ROCKET_ADDRESS=127.0.0.1 cargo run --release &
+            ROCKET_PROFILE=test ROCKET_CONFIG=./Rocket.toml ROCKET_PORT=8001 ROCKET_ADDRESS=127.0.0.1 ${rustToolchain}/bin/cargo run --release &
             SERVER_PID=$!
 
             # Wait for server to start
