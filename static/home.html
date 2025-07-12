@@ -4,10 +4,29 @@
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Nexo</title>
-    <script src="https://unpkg.com/htmx.org@2.0.6"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-900 text-white min-h-screen flex flex-col items-center justify-center p-4">
+
+<div class="absolute top-4 right-4 flex items-center space-x-4"
+     x-data="{ username: '', authenticated: false }"
+     x-init="fetch('/api/user')
+        .then(r => r.ok ? r.json() : Promise.reject())
+        .then(data => { username = data.username; authenticated = true; })
+        .catch(() => { authenticated = false; });">
+    <template x-if="authenticated">
+        <span x-text="'Welcome, ' + username + '!'" class="text-gray-300"></span>
+    </template>
+    <template x-if="!authenticated">
+        <span class="text-gray-300">Not authenticated</span>
+    </template>
+    <form action="/logout" method="post" class="inline">
+        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition">
+            Logout
+        </button>
+    </form>
+</div>
 
 <h1 class="text-gray-400 text-6xl font-bold mb-8">Nexo</h1>
 

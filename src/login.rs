@@ -1,7 +1,8 @@
 use rocket::response::content::RawHtml;
 use rocket::form::Form;
 use crate::crypto::hash_password;
-use crate::database::{NexoDB, get_password_hash_from_username as get_psw, ensure_db_initialized};
+use crate::database::{NexoDB, get_password_hash_from_username as get_psw, ensure_db_initialized, 
+                     get_user_id_by_username, create_session, validate_session, get_username_by_id, delete_session};
 use rocket::http::{Status, Cookie, CookieJar};
 use rocket::response::{Responder, Response};
 use rocket::Request;
@@ -11,13 +12,25 @@ pub struct LoginForm {
     username: String,
     password: String,
 }
+
 #[get("/")]
-pub async fn home(cookies: &CookieJar<'_>) -> Result<rocket::fs::NamedFile, rocket::response::Redirect> {
-    if cookies.get("logged_in").is_some() {
-        Ok(rocket::fs::NamedFile::open("static/home.html")
-            .await
-            .expect("static/home.html not found"))
+pub async fn home(cookies: &CookieJar<'_>, db: &NexoDB) -> Result<rocket::fs::NamedFile, rocket::response::Redirect> {
+    // Check for session token instead of simple logged_in cookie
+    if let Some(session_cookie) = cookies.get("session_token") {
+        let token = session_cookie.value();
+        
+        // Validate the session token
+        if let Some(_user_id) = validate_session(db, token).await {
+            // Session is valid, serve the home page
+            Ok(rocket::fs::NamedFile::open("static/home.html")
+                .await
+                .expect("static/home.html not found"))
+        } else {
+            // Invalid or expired session, redirect to login
+            Err(rocket::response::Redirect::to("/"))
+        }
     } else {
+        // No session token, redirect to login
         Err(rocket::response::Redirect::to("/"))
     }
 }
@@ -54,16 +67,78 @@ pub async fn login(
 ) -> Result<HxRedirectWithCookie, RawHtml<String>> {
     let stored_hash = get_user_psw_from_db(db, form.username.clone()).await;
     if validate_user_psw(stored_hash, form.password.clone(), "salt") {
-        let mut cookie = Cookie::new("logged_in", "1");
-        cookie.set_path("/");
-        cookies.add(cookie);
-        Ok(HxRedirectWithCookie { location: "/home".to_string() })
+        // Get user ID for session creation
+        if let Some(user_id) = get_user_id_by_username(db, form.username.as_str()).await {
+            // Create session (24 hours = 86400 seconds)
+            if let Some(session_token) = create_session(db, user_id, 86400).await {
+                let mut cookie = Cookie::new("session_token", session_token);
+                cookie.set_path("/");
+                cookie.set_http_only(true); // Prevent XSS attacks
+                cookie.set_secure(false); // Set to true in production with HTTPS
+                cookies.add(cookie);
+                
+                Ok(HxRedirectWithCookie { location: "/home".to_string() })
+            } else {
+                Err(RawHtml(r#"
+                  <div class="text-red-600 text-center">
+                    Failed to create session. Please try again.
+                  </div>
+                "#.to_string()))
+            }
+        } else {
+            Err(RawHtml(r#"
+              <div class="text-red-600 text-center">
+                User not found. Please try again.
+              </div>
+            "#.to_string()))
+        }
     } else {
         Err(RawHtml(r#"
           <div class="text-red-600 text-center">
             Invalid username or password
           </div>
         "#.to_string()))
+    }
+}
+
+#[post("/logout")]
+pub async fn logout(cookies: &CookieJar<'_>, db: &NexoDB) -> rocket::response::Redirect {
+    // Get the session token from the cookie
+    if let Some(session_cookie) = cookies.get("session_token") {
+        let token = session_cookie.value();
+        
+        // Delete the session from the database
+        if let Err(e) = delete_session(db, token).await {
+            eprintln!("Failed to delete session: {:?}", e);
+        }
+    }
+    
+    // Remove session cookie
+    cookies.remove(Cookie::from("session_token"));
+    
+    rocket::response::Redirect::to("/")
+}
+
+#[get("/user")]
+pub async fn get_current_user(cookies: &CookieJar<'_>, db: &NexoDB) -> Result<rocket::serde::json::Json<serde_json::Value>, Status> {
+    if let Some(session_cookie) = cookies.get("session_token") {
+        let token = session_cookie.value();
+        
+        if let Some(user_id) = validate_session(db, token).await {
+            if let Some(username) = get_username_by_id(db, user_id).await {
+                let user_data = serde_json::json!({
+                    "username": username,
+                    "user_id": user_id
+                });
+                Ok(rocket::serde::json::Json(user_data))
+            } else {
+                Err(Status::InternalServerError)
+            }
+        } else {
+            Err(Status::Unauthorized)
+        }
+    } else {
+        Err(Status::Unauthorized)
     }
 }
 

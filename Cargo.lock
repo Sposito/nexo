@@ -965,8 +965,11 @@ dependencies = [
 name = "nexo"
 version = "0.1.0"
 dependencies = [
+ "rand",
  "rocket",
  "rocket_db_pools",
+ "serde",
+ "serde_json",
  "sha2",
 ]
 
@@ -1316,6 +1319,7 @@ dependencies = [
  "rocket_codegen",
  "rocket_http",
  "serde",
+ "serde_json",
  "state",
  "tempfile",
  "time",
